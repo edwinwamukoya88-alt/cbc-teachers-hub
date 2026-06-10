@@ -1,0 +1,108 @@
+rules_version = '2';
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+    // Users: read/write own document
+    match /users/{userId} {
+      allow read: if request.auth != null && request.auth.uid == userId;
+      allow write: if request.auth != null && request.auth.uid == userId;
+      allow read, write: if request.auth != null && request.auth.token.role == 'super_admin';
+    }
+
+    // Subscriptions: readable by owner, writable only by admin SDK
+    match /subscriptions/{subId} {
+      allow read: if request.auth != null && (resource.data.userId == request.auth.uid || request.auth.token.role == 'super_admin');
+      allow write: if false; // Admin SDK only
+    }
+
+    // AI Usage: readable by owner, writable by Cloud Functions only
+    match /ai_usage/{userId}/monthly/{yearMonth} {
+      allow read: if request.auth != null && request.auth.uid == userId;
+      allow write: if false;
+    }
+
+    // Schools: accessible by members + admin
+    match /schools/{schoolId} {
+      allow read: if request.auth != null && (
+        request.auth.token.role == 'super_admin' ||
+        exists(/databases/$(database)/documents/schools/$(schoolId)/members/$(request.auth.uid))
+      );
+      allow write: if request.auth != null && request.auth.token.role == 'super_admin';
+
+      match /members/{userId} {
+        allow read: if request.auth != null && (
+          request.auth.uid == userId ||
+          request.auth.token.role == 'super_admin'
+        );
+        allow write: if request.auth != null && request.auth.token.role == 'super_admin';
+      }
+    }
+
+    // Curriculum: readable by all authenticated, writable by admin
+    match /curriculum/{gradeId} {
+      allow read: if request.auth != null;
+      allow write: if request.auth != null && request.auth.token.role == 'super_admin';
+
+      match /learning_areas/{areaId} {
+        allow read: if request.auth != null;
+        allow write: if request.auth != null && request.auth.token.role == 'super_admin';
+
+        match /strands/{strandId} {
+          allow read: if request.auth != null;
+          allow write: if request.auth != null && request.auth.token.role == 'super_admin';
+
+          match /sub_strands/{subStrandId} {
+            allow read: if request.auth != null;
+            allow write: if request.auth != null && request.auth.token.role == 'super_admin';
+          }
+        }
+      }
+    }
+
+    // Resources: published readable by all, writable by author or admin
+    match /resources/{resourceId} {
+      allow read: if resource.data.status == 'published' || (request.auth != null && (
+        request.auth.uid == resource.data.authorId ||
+        request.auth.token.role == 'super_admin'
+      ));
+      allow create: if request.auth != null && request.auth.uid == request.resource.data.authorId;
+      allow update: if request.auth != null && (
+        request.auth.uid == resource.data.authorId ||
+        request.auth.token.role == 'super_admin'
+      );
+      allow delete: if request.auth != null && request.auth.token.role == 'super_admin';
+    }
+
+    // Quality Reviews: readable by author + admin, writable by Cloud Functions
+    match /quality_reviews/{reviewId} {
+      allow read: if request.auth != null && (
+        request.auth.token.role == 'super_admin' ||
+        request.auth.uid == (
+          get(/databases/$(database)/documents/resources/$(resource.data.resourceId)).data.authorId
+        )
+      );
+      allow write: if false;
+    }
+
+    // Report Cards: readable by creator + admin, writable by Cloud Functions
+    match /report_cards/{reportCardId} {
+      allow read: if request.auth != null && (
+        request.auth.uid == resource.data.userId ||
+        request.auth.token.role == 'super_admin'
+      );
+      allow write: if false;
+    }
+
+    // Generated Content: owner only
+    match /generated_content/{contentId} {
+      allow read, delete: if request.auth != null && request.auth.uid == resource.data.userId;
+      allow write: if false;
+    }
+
+    // Blog Posts: published readable by all, writable by admin
+    match /blog_posts/{postId} {
+      allow read: if resource.data.status == 'published' || (request.auth != null && request.auth.token.role == 'super_admin');
+      allow write: if request.auth != null && request.auth.token.role == 'super_admin';
+    }
+  }
+}

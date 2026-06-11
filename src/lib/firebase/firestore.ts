@@ -10,12 +10,12 @@ import {
   where,
   orderBy,
   limit,
-  QueryConstraint,
+  addDoc,
   Timestamp,
   serverTimestamp,
-  addDoc,
+  type QueryConstraint,
 } from 'firebase/firestore'
-import { db } from './config'
+import { getFirestoreInstance } from './config'
 
 export {
   doc,
@@ -36,4 +36,4 @@ export {
 
 export type { QueryConstraint }
 
-export default db!
+export { getFirestoreInstance }

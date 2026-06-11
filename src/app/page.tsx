@@ -1,8 +1,9 @@
 'use client'
 
 import { useEffect, useState } from 'react'
-import { getAuth, onAuthStateChanged } from 'firebase/auth'
+import { onAuthStateChanged } from 'firebase/auth'
 import { redirect } from 'next/navigation'
+import { getAuthInstance } from '@/lib/firebase/config'
 import DashboardContent from './(dashboard)/dashboard-content'
 
 export default function HomePage() {
@@ -10,7 +11,7 @@ export default function HomePage() {
   const [user, setUser] = useState<any>(null)
 
   useEffect(() => {
-    const unsubscribe = onAuthStateChanged(getAuth(), (firebaseUser) => {
+    const unsubscribe = onAuthStateChanged(getAuthInstance(), (firebaseUser) => {
       if (firebaseUser) {
         setUser(firebaseUser)
       } else {

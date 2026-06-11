@@ -1,8 +1,9 @@
-import { GoogleAuthProvider, signInWithPopup, signInWithRedirect, signOut, sendPasswordResetEmail, signInWithEmailAndPassword, createUserWithEmailAndPassword, getAuth } from 'firebase/auth'
+import { GoogleAuthProvider, signInWithPopup, signInWithRedirect, signOut, sendPasswordResetEmail, signInWithEmailAndPassword, createUserWithEmailAndPassword } from 'firebase/auth'
+import { getAuthInstance } from '@/lib/firebase/config'
 
 export const signInWithGoogle = async () => {
   const provider = new GoogleAuthProvider()
-  const auth = getAuth()
+  const auth = getAuthInstance()
 
   try {
     const result = await signInWithPopup(auth, provider)
@@ -17,10 +18,8 @@ export const signInWithGoogle = async () => {
 }
 
 export const logOut = async () => {
-  await signOut(getAuth())
+  await signOut(getAuthInstance())
 }
-
-const getAuthInstance = () => getAuth()
 
 export const resetPassword = async (email: string) => {
   const auth = getAuthInstance()

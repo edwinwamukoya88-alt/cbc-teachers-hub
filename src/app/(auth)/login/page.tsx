@@ -1,8 +1,9 @@
 'use client'
 
 import { useState } from 'react'
-import { signInWithEmailAndPassword, getAuth } from 'firebase/auth'
+import { signInWithEmailAndPassword } from 'firebase/auth'
 import { signInWithGoogle } from '@/lib/firebase/auth'
+import { getAuthInstance } from '@/lib/firebase/config'
 
 export default function LoginPage() {
   const [email, setEmail] = useState('')
@@ -14,7 +15,7 @@ export default function LoginPage() {
     setError('')
 
     try {
-      await signInWithEmailAndPassword(getAuth(), email, password)
+      await signInWithEmailAndPassword(getAuthInstance(), email, password)
       window.location.href = '/'
     } catch (err: any) {
       setError(err?.message ?? 'Sign in failed')

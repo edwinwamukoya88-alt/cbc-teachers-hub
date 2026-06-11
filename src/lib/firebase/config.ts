@@ -1,12 +1,8 @@
-if (typeof window !== 'undefined') {
-  ;(window as any).FIREBASE_APPCHECK_DEBUG_TOKEN = true
-}
-
-import { initializeApp, getApps } from 'firebase/app'
-import { getAuth, connectAuthEmulator } from 'firebase/auth'
-import { getFirestore, connectFirestoreEmulator } from 'firebase/firestore'
-import { getFunctions, connectFunctionsEmulator } from 'firebase/functions'
-import { getStorage } from 'firebase/storage'
+import { initializeApp, getApps, type FirebaseApp } from 'firebase/app'
+import { getAuth, connectAuthEmulator, type Auth } from 'firebase/auth'
+import { getFirestore, connectFirestoreEmulator, type Firestore } from 'firebase/firestore'
+import { getFunctions, connectFunctionsEmulator, type Functions } from 'firebase/functions'
+import { getStorage, type FirebaseStorage } from 'firebase/storage'
 
 const firebaseConfig = {
   apiKey: process.env.NEXT_PUBLIC_FIREBASE_API_KEY,
@@ -17,59 +13,60 @@ const firebaseConfig = {
   appId: process.env.NEXT_PUBLIC_FIREBASE_APP_ID,
 }
 
-let app: ReturnType<typeof initializeApp> | null = null
-let auth: ReturnType<typeof getAuth> | null = null
-let db: ReturnType<typeof getFirestore> | null = null
-let storage: ReturnType<typeof getStorage> | null = null
-let functions: ReturnType<typeof getFunctions> | null = null
+let appInstance: FirebaseApp | null = null
+let authInstance: Auth | null = null
+let dbInstance: Firestore | null = null
+let storageInstance: FirebaseStorage | null = null
+let functionsInstance: Functions | null = null
 
 try {
   if (typeof window !== 'undefined') {
-    app = getApps().length ? getApps()[0] : initializeApp(firebaseConfig)
-    auth = getAuth(app)
-    db = getFirestore(app)
-    storage = getStorage(app)
-    functions = getFunctions(app, 'us-central1')
+    appInstance = getApps().length ? getApps()[0] : initializeApp(firebaseConfig)
+    authInstance = getAuth(appInstance)
+    dbInstance = getFirestore(appInstance)
+    storageInstance = getStorage(appInstance)
+    functionsInstance = getFunctions(appInstance, 'us-central1')
 
-    if (location.hostname === 'localhost' || location.hostname === '127.0.0.1') {
-      connectAuthEmulator(auth, 'http://127.0.0.1:9099')
-      connectFirestoreEmulator(db, '127.0.0.1', 8080)
-      connectFunctionsEmulator(functions, '127.0.0.1', 5001)
+    if (
+      typeof location !== 'undefined' &&
+      (location.hostname === 'localhost' || location.hostname === '127.0.0.1')
+    ) {
+      connectAuthEmulator(authInstance, 'http://127.0.0.1:9099')
+      connectFirestoreEmulator(dbInstance, '127.0.0.1', 8080)
+      connectFunctionsEmulator(functionsInstance, '127.0.0.1', 5001)
     }
   }
 } catch {
-  // Firebase not available during SSR
+  // Firebase not available during SSR — getter functions will throw with a clear message
 }
 
-const throwIfMissing = (name: string) => {
+function throwIfMissing(name: string): never {
   throw new Error(
     `Firebase ${name} is not initialized. Ensure NEXT_PUBLIC_FIREBASE_* env vars are set and this code runs client-side only.`
   )
 }
 
-export function getApp(): ReturnType<typeof initializeApp> {
-  if (!app) throwIfMissing('app')
-  return app!
+export function getApp(): FirebaseApp {
+  if (!appInstance) throwIfMissing('app')
+  return appInstance
 }
 
-export function getAuthInstance(): ReturnType<typeof getAuth> {
-  if (!auth) throwIfMissing('auth')
-  return auth!
+export function getAuthInstance(): Auth {
+  if (!authInstance) throwIfMissing('auth')
+  return authInstance
 }
 
-export function getFirestoreInstance(): ReturnType<typeof getFirestore> {
-  if (!db) throwIfMissing('firestore')
-  return db!
+export function getFirestoreInstance(): Firestore {
+  if (!dbInstance) throwIfMissing('firestore')
+  return dbInstance
 }
 
-export function getStorageInstance(): ReturnType<typeof getStorage> {
-  if (!storage) throwIfMissing('storage')
-  return storage!
+export function getStorageInstance(): FirebaseStorage {
+  if (!storageInstance) throwIfMissing('storage')
+  return storageInstance
 }
 
-export function getFunctionsInstance(): ReturnType<typeof getFunctions> {
-  if (!functions) throwIfMissing('functions')
-  return functions!
+export function getFunctionsInstance(): Functions {
+  if (!functionsInstance) throwIfMissing('functions')
+  return functionsInstance
 }
-
-export { app, auth, db, storage, functions }

@@ -2,7 +2,7 @@
 
 import { useState } from 'react'
 import { httpsCallable } from 'firebase/functions'
-import { functions } from '@/lib/firebase/config'
+import { getFunctionsInstance } from '@/lib/firebase/config'
 
 const grades = Array.from({ length: 9 }, (_, i) => `Grade ${i + 1}`)
 
@@ -58,7 +58,7 @@ export default function AiLessonAssistant() {
     setCopied(false)
 
     try {
-      const generatePlan = httpsCallable(functions, 'aiLessonPlan')
+      const generatePlan = httpsCallable(getFunctionsInstance(), 'aiLessonPlan')
       const res = await generatePlan({
         grade: form.gradeLevel,
         learningArea: form.subject,

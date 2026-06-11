@@ -1,6 +1,8 @@
 import * as admin from 'firebase-admin'
+import * as functions from 'firebase-functions'
+import { FieldValue } from 'firebase-admin/firestore'
 
-export const onUserCreate = admin.auth().user().onCreate(async (user) => {
+export const onUserCreate = functions.auth.user().onCreate(async (user: any) => {
   await admin.firestore().collection('users').doc(user.uid).set({
     uid: user.uid,
     email: user.email,
@@ -13,11 +15,11 @@ export const onUserCreate = admin.auth().user().onCreate(async (user) => {
       biblicalIntegration: false,
       darkMode: false,
     },
-    createdAt: admin.firestore.FieldValue.serverTimestamp(),
-    updatedAt: admin.firestore.FieldValue.serverTimestamp(),
+    createdAt: FieldValue.serverTimestamp(),
+    updatedAt: FieldValue.serverTimestamp(),
   })
 })
 
-export const onUserDelete = admin.auth().user().onDelete(async (user) => {
+export const onUserDelete = functions.auth.user().onDelete(async (user: any) => {
   await admin.firestore().collection('users').doc(user.uid).delete()
 })

@@ -1,6 +1,11 @@
+if (typeof window !== 'undefined') {
+  ;(window as any).FIREBASE_APPCHECK_DEBUG_TOKEN = true
+}
+
 import { initializeApp, getApps } from 'firebase/app'
 import { getAuth, connectAuthEmulator } from 'firebase/auth'
-import { getFirestore } from 'firebase/firestore'
+import { getFirestore, connectFirestoreEmulator } from 'firebase/firestore'
+import { getFunctions, connectFunctionsEmulator } from 'firebase/functions'
 import { getStorage } from 'firebase/storage'
 
 const firebaseConfig = {
@@ -16,6 +21,7 @@ let app: ReturnType<typeof initializeApp> | null = null
 let auth: ReturnType<typeof getAuth> | null = null
 let db: ReturnType<typeof getFirestore> | null = null
 let storage: ReturnType<typeof getStorage> | null = null
+let functions: ReturnType<typeof getFunctions> | null = null
 
 try {
   if (typeof window !== 'undefined') {
@@ -23,9 +29,12 @@ try {
     auth = getAuth(app)
     db = getFirestore(app)
     storage = getStorage(app)
+    functions = getFunctions(app, 'us-central1')
 
     if (location.hostname === 'localhost' || location.hostname === '127.0.0.1') {
       connectAuthEmulator(auth, 'http://127.0.0.1:9099')
+      connectFirestoreEmulator(db, '127.0.0.1', 8080)
+      connectFunctionsEmulator(functions, '127.0.0.1', 5001)
     }
   }
 } catch {
@@ -58,4 +67,9 @@ export function getStorageInstance(): ReturnType<typeof getStorage> {
   return storage!
 }
 
-export { app, auth, db, storage }
+export function getFunctionsInstance(): ReturnType<typeof getFunctions> {
+  if (!functions) throwIfMissing('functions')
+  return functions!
+}
+
+export { app, auth, db, storage, functions }

@@ -1,44 +1,40 @@
-import {
-  signInWithEmailAndPassword,
-  createUserWithEmailAndPassword,
-  signOut,
-  sendPasswordResetEmail,
-  updateProfile,
-  GoogleAuthProvider,
-  signInWithPopup,
-  User,
-} from 'firebase/auth'
-import { getAuthInstance } from './config'
+import { GoogleAuthProvider, signInWithPopup, signInWithRedirect, signOut, sendPasswordResetEmail, signInWithEmailAndPassword, createUserWithEmailAndPassword, getAuth } from 'firebase/auth'
 
-const getAuth = () => {
-  const instance = getAuthInstance()
-  if (!instance) throw new Error('Auth not initialized')
-  return instance
-}
+export const signInWithGoogle = async () => {
+  const provider = new GoogleAuthProvider()
+  const auth = getAuth()
 
-export const signIn = async (email: string, password: string) => {
-  const result = await signInWithEmailAndPassword(getAuth(), email, password)
-  return result.user
-}
-
-export const signUp = async (email: string, password: string, displayName: string) => {
-  const result = await createUserWithEmailAndPassword(getAuth(), email, password)
-  await updateProfile(result.user, { displayName })
-  return result.user
+  try {
+    const result = await signInWithPopup(auth, provider)
+    return result.user
+  } catch (error: any) {
+    if (error?.code === 'auth/cancelled-popup-request' || error?.code === 'auth/popup-blocked' || error?.code === 'auth/popup-closed-by-user') {
+      await signInWithRedirect(auth, provider)
+      return null
+    }
+    throw error
+  }
 }
 
 export const logOut = async () => {
   await signOut(getAuth())
 }
 
+const getAuthInstance = () => getAuth()
+
 export const resetPassword = async (email: string) => {
-  await sendPasswordResetEmail(getAuth(), email)
+  const auth = getAuthInstance()
+  return await sendPasswordResetEmail(auth, email)
 }
 
-export const getCurrentUser = (): User | null => getAuth()?.currentUser ?? null
+export const signIn = async (email: string, password: string) => {
+  const auth = getAuthInstance()
+  const result = await signInWithEmailAndPassword(auth, email, password)
+  return result.user
+}
 
-export const signInWithGoogle = async () => {
-  const provider = new GoogleAuthProvider()
-  const result = await signInWithPopup(getAuth(), provider)
+export const signUp = async (email: string, password: string) => {
+  const auth = getAuthInstance()
+  const result = await createUserWithEmailAndPassword(auth, email, password)
   return result.user
 }

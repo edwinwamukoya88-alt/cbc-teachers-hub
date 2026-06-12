@@ -21,7 +21,8 @@ function logAuthError(context: string, error: unknown) {
         '[Firebase Auth] Firebase API key restricted or Identity Toolkit API blocked. ' +
         'Go to Google Cloud Console → APIs & Services → Credentials → API Keys → ' +
         'edit your Web key. Ensure "Identity Toolkit API" is enabled (APIs & Services → Library) ' +
-        'and add http://localhost:3000/* to the HTTP referrer allowlist.'
+        'and add your production domain (e.g. https://your-app.vercel.app/*) ' +
+        'and http://localhost:3000/* for local dev to the HTTP referrer allowlist.'
       )
     }
   } else {

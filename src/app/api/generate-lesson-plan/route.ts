@@ -1,4 +1,5 @@
 import { NextResponse } from 'next/server'
+import { verifyAuthToken } from '@/lib/ai/auth'
 
 const GEMINI_API_KEY = process.env.GEMINI_API_KEY
 const GEMINI_API_URL =
@@ -6,6 +7,15 @@ const GEMINI_API_URL =
 
 export async function POST(request: Request) {
   try {
+    try {
+      await verifyAuthToken(request.headers.get('Authorization'))
+    } catch {
+      return NextResponse.json(
+        { success: false, message: 'Unauthorized', lessonPlan: null },
+        { status: 401 },
+      )
+    }
+
     let subject: string, grade: string, topic: string, duration: string
 
     try {

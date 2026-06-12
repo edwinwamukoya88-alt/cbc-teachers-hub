@@ -1,0 +1,13 @@
+# dependencies
+/node_modules
+
+# build output
+/lib
+
+# environment files (contain live secrets)
+.env
+.env.local
+.env.production
+
+# logs
+*.log

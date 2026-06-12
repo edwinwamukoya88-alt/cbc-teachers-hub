@@ -1,7 +1,9 @@
 'use client'
 
 import { useAuth } from '@/modules/auth/providers/AuthProvider'
+import { usePlanLimits } from '@/modules/billing/hooks/usePlanLimits'
 import { Button } from '@/components/ui/button'
+import { Badge } from '@/components/ui/badge'
 import { Avatar, AvatarFallback } from '@/components/ui/avatar'
 import {
   DropdownMenu,
@@ -11,20 +13,31 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu'
-import { Bell, LogOut, Moon, Sun, User } from 'lucide-react'
+import { Bell, LogOut, Moon, Sun, User, Sparkles } from 'lucide-react'
 import { useTheme } from 'next-themes'
 import { useRouter } from 'next/navigation'
-import { useState } from 'react'
+
+const planMeta: Record<string, { label: string; variant: 'default' | 'outline' | 'secondary' }> = {
+  free: { label: 'Free', variant: 'outline' },
+  teacher_pro: { label: 'Pro', variant: 'default' },
+  school: { label: 'School', variant: 'secondary' },
+}
 
 export function Header() {
   const { user, signOut, firebaseUser } = useAuth()
+  const { plan } = usePlanLimits()
   const { theme, setTheme } = useTheme()
   const router = useRouter()
-  const [mounted, setMounted] = useState(false)
+
+  const meta = planMeta[plan] ?? planMeta.free
 
   return (
     <header className="sticky top-0 z-50 flex h-14 items-center gap-4 border-b bg-background px-4 lg:px-6">
       <div className="flex-1" />
+      <Badge variant={meta.variant} className="hidden sm:inline-flex gap-1 items-center">
+        <Sparkles className="h-3 w-3" />
+        {meta.label}
+      </Badge>
       <Button
         variant="ghost"
         size="icon"
@@ -48,7 +61,7 @@ export function Header() {
           <DropdownMenuLabel>
             <div className="flex flex-col">
               <span>{user?.displayName ?? 'Teacher'}</span>
-              <span className="text-xs text-muted-foreground capitalize">{user?.plan ?? 'free'} plan</span>
+              <span className="text-xs text-muted-foreground capitalize">{plan} plan</span>
             </div>
           </DropdownMenuLabel>
           <DropdownMenuSeparator />

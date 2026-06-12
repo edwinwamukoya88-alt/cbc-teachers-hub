@@ -14,5 +14,5 @@ export function useRequireAuth() {
     }
   }, [user, loading, router])
 
-  return { user, loading }
+  return { user, loading, isAuthenticated: !!user }
 }

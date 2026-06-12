@@ -1,6 +1,7 @@
 import { Timestamp } from 'firebase/firestore'
 
 export type UserRole = 'super_admin' | 'school_admin' | 'teacher' | 'parent'
+export type AccountType = 'independent_teacher' | 'parent' | 'school_admin'
 export type Plan = 'free' | 'teacher_pro' | 'school'
 export type Language = 'en' | 'sw'
 export type SubscriptionStatus = 'active' | 'grace_period' | 'expired' | 'cancelled'
@@ -15,6 +16,7 @@ export interface User {
   email: string
   displayName: string
   role: UserRole
+  accountType: AccountType
   avatarUrl?: string
   phone?: string
   schoolId?: string

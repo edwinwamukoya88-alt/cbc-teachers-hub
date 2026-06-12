@@ -1,3 +1,3 @@
-import type { UserRole } from '@/types'
+import type { User, Plan, UserRole, AccountType } from '@/types'
 
-export type { User, Plan, UserRole, Language, PerformanceLevel, OverallRating, ResourceType, ResourceStatus, SubscriptionStatus, ExamType } from '@/types'
+export type { User, Plan, UserRole, AccountType }

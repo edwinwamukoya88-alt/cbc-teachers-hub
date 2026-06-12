@@ -60,6 +60,13 @@ export const RESOURCE_TYPES = [
 
 export const EXAM_TYPES = ['cat', 'mid_term', 'end_term'] as const
 
+export const CBC_GRADES = [
+  'PP1', 'PP2',
+  'Grade 1', 'Grade 2', 'Grade 3',
+  'Grade 4', 'Grade 5', 'Grade 6',
+  'Grade 7', 'Grade 8', 'Grade 9',
+] as const
+
 export const DIARY_CATEGORIES = [
   'homework', 'assignment', 'project', 'reminder',
   'examination', 'school_event', 'cbc_activity', 'holiday_assignment',
@@ -70,3 +77,10 @@ export const QUALITY_THRESHOLDS = {
   QUALITY_MIN: 75,
   CURRICULUM_ALIGNMENT_MIN: 75,
 } as const
+
+export const SUBSCRIPTION_PRICES = {
+  teacher_pro: 499,
+  school: 2999,
+} as const
+
+export const CURRENCY = 'KES'
